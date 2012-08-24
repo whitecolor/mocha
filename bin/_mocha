@@ -275,11 +275,6 @@ files = files.map(function(path){
 if (program.watch) {
   console.log();
   hideCursor();
-  process.on('SIGINT', function(){
-    showCursor();
-    console.log('\n');
-    process.exit();
-  });
 
   var frames = [
       '  \u001b[96m◜ \u001b[90mwatching\u001b[0m'
@@ -307,14 +302,19 @@ if (program.watch) {
 
   loadAndRun();
 
+  var lastRun = new Date();
   utils.watch(watchFiles, function(){
-    purge();
-    stop()
-    mocha.suite = mocha.suite.clone();
-    mocha.ui(program.ui);
-    loadAndRun();
+    if (new Date() - lastRun > 300)
+    {
+        purge();
+        stop()
+        // suite = suite.clone();
+        // ui = interfaces[program.ui](suite);
+        loadAndRun();
+        lastRun = new Date();
+    }
   });
-
+  
   return;
 }
 
@@ -412,6 +412,6 @@ function play(arr, interval) {
 
   play.timer = setInterval(function(){
     var str = arr[i++ % len];
-    process.stdout.write('\r' + str);
+    // process.stdout.write('\r' + str);
   }, interval);
 }
